@@ -17,13 +17,15 @@ int main( int argc, char** argv)
     
     printf ("Successful connection to %s\n",SERIAL_PORT.c_str());
 
-    char read;
+    char read[256];
     
     // Loop forever
     while (1)
     {
-        serial.readChar(&read);
-        printf("%c", read);
+        serial.readString(read, '\n', 256);
+        
+        float num_float = atof(read);
+        printf("%f\n", num_float);
     }
     
     // Close the serial device
