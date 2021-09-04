@@ -124,7 +124,7 @@ int main() {
         // Update and render -----
         
         glViewport(0, 0, fbWidth, fbHeight);
-        glClearColor(0, 0, 0, 0);
+        glClearColor(0.1f, 0.1f, 0.1f, 0);
         glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_STENCIL_BUFFER_BIT);
 
         nvgBeginFrame(vg, winWidth, winHeight, pxRatio);
@@ -136,7 +136,7 @@ int main() {
             nvgLineTo(vg, i, winHeight*(1.f - voltages[i]*2)); // considering max is 0.5V for now
         }
 
-        nvgStrokeColor(vg, nvgRGB(255, 255, 255));
+        nvgStrokeColor(vg, nvgRGB(0, 167, 251));
         nvgStrokeWidth(vg, 2);
         nvgStroke(vg);
 
