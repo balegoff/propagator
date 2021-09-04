@@ -109,13 +109,17 @@ int main() {
         
         // Update data -----
         
-        serial.readString(read, '\n', 256);
+        float val = 0.f;
         
-        float num_float = atof(read);
-        
-        voltages[current_pos] = num_float;
+        for(uint32_t i=0; i < 4 ; ++i) { // Get peak point between 4 measurements
+            serial.readString(read, '\n', 256);
+            float num_float = atof(read);
+            val = std::max(val, num_float);
+        }
+
+        voltages[current_pos] = val;
         current_pos = (current_pos + 1) % voltages.size();
-        printf("%f\n", num_float);
+        //printf("%f\n", val);
     
         // Update and render -----
         
@@ -126,10 +130,10 @@ int main() {
         nvgBeginFrame(vg, winWidth, winHeight, pxRatio);
 
         nvgBeginPath(vg);
-        nvgMoveTo(vg, 0, winHeight);
+        nvgMoveTo(vg, 0, winHeight*(1.f - voltages[0]*2));
         
         for(uint32_t i=0; i < voltages.size(); ++i) {
-            nvgLineTo(vg, i, winHeight*(1.f - voltages[i])); // considering max is 1 V for now
+            nvgLineTo(vg, i, winHeight*(1.f - voltages[i]*2)); // considering max is 0.5V for now
         }
 
         nvgStrokeColor(vg, nvgRGB(255, 255, 255));
