@@ -20,8 +20,7 @@ int main( int argc, char** argv)
     char read[256];
     
     // Loop forever
-    while (1)
-    {
+    while (1) {
         serial.readString(read, '\n', 256);
         
         float num_float = atof(read);
