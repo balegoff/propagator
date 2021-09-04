@@ -57,6 +57,7 @@ int main() {
     
     // If connection fails, return the error code otherwise, display a success message
     if (errorOpening != 1) {
+        printf("Unable to open device %s\n", SERIAL_PORT.c_str());
         return errorOpening;
     }
     
