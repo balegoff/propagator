@@ -4,13 +4,14 @@
 #include "serialib.h"
 
 #ifdef _WIN32
-#  include <GL/glew.h>
+    #include <GL/glew.h>
+    #define NANOVG_GLEW
 #endif
 
 #include "nanovg.h"
 
 #if defined __linux__
-#define GL_GLEXT_PROTOTYPES
+    #define GL_GLEXT_PROTOTYPES
 #endif
 
 #include <GLFW/glfw3.h>
