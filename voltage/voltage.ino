@@ -4,6 +4,7 @@ void setup() {
 }
 
 void loop() {
+  
   // Read the input on analog pin 2:
   int sensorValue = analogRead(A2);
   
@@ -13,6 +14,7 @@ void loop() {
   // Print value on serial port with 3 decimals
   Serial.println(voltage, 3);
 
-  // Wait 10 ms
-  delay(10);
+  // Wait 1 ms
+  delay(1);
+  
 }
