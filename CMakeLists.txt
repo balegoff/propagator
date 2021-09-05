@@ -6,15 +6,18 @@ project(${PROJECT_NAME})
 
 add_definitions(-DGL_SILENCE_DEPRECATION=1)
 
-set(SOURCE_FILES
-	src/main.cpp
-)
+add_subdirectory(../glfw ${CMAKE_BINARY_DIR}/glfw)
+
+# Serialib -----
 
 set(SERIAL_LIB_FILES
 	../serialib/lib/serialib.h
 	../serialib/lib/serialib.cpp)
 
-add_subdirectory(../glfw ${CMAKE_BINARY_DIR}/glfw)
+add_library(
+	serialib STATIC
+    ${SERIAL_LIB_FILES}
+)
 
 # NanoVG -----
 
@@ -39,11 +42,15 @@ target_link_libraries(nanovg ${OPENGL_gl_LIBRARY})
 
 # Propagator -----
 
-add_executable(${PROJECT_NAME} ${SOURCE_FILES} ${SERIAL_LIB_FILES})
+set(SOURCE_FILES
+	src/main.cpp
+)
+
+add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 
 target_include_directories(${PROJECT_NAME} PUBLIC
 						   ../serialib/lib
 						   ../nanovg/src
 						   ../glfw/include)
 
-target_link_libraries(${PROJECT_NAME} PUBLIC glfw nanovg)
+target_link_libraries(${PROJECT_NAME} PUBLIC glfw nanovg serialib)
