@@ -115,10 +115,13 @@ int main() {
     
     glfwSwapInterval(0);
     glfwGetWindowSize(window, &winWidth, &winHeight);
+    glClearColor(0.1f, 0.1f, 0.1f, 0);
     
     std::vector<float> voltages(winWidth, 0);
     uint32_t current_pos = 0;
     char read[256];
+    
+    float min_voltage = 5.f;
     
     while(!glfwWindowShouldClose(window))
     {
@@ -143,15 +146,15 @@ int main() {
         }
 
         voltages[current_pos] = val;
+        min_voltage = std::min(min_voltage, val);
         
         //printf("%f\n", val);
     
-        // Update and render -----
-        
         glViewport(0, 0, fbWidth, fbHeight);
-        glClearColor(0.1f, 0.1f, 0.1f, 0);
         glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT|GL_STENCIL_BUFFER_BIT);
 
+        // Draw data -----
+        
         nvgBeginFrame(vg, winWidth, winHeight, pxRatio);
 
         nvgBeginPath(vg);
@@ -168,6 +171,16 @@ int main() {
         nvgStrokeWidth(vg, 2);
         nvgStroke(vg);
 
+        // Draw min line -----
+        
+        nvgStrokeColor(vg, nvgRGB(255, 69, 69));
+        nvgBeginPath(vg);
+        nvgMoveTo(vg, 0, voltageToScreenY(min_voltage));
+        nvgLineTo(vg, winWidth, voltageToScreenY(min_voltage));
+        nvgStroke(vg);
+        
+        // -----
+        
         nvgEndFrame(vg);
         
         // -----
