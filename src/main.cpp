@@ -19,11 +19,18 @@
 #define NANOVG_GL2_IMPLEMENTATION
 #include "nanovg_gl.h"
 
+const std::string SERIAL_PORT = "/dev/tty.usbmodem1464301";
+GLFWwindow* window;
+NVGcontext* vg = NULL;
+serialib serial;
+
+// ----------------------------------------------------------------------------
 void errorcb(int error, const char* desc)
 {
     printf("GLFW error %d: %s\n", error, desc);
 }
 
+// ----------------------------------------------------------------------------
 static void key(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
     NVG_NOTUSED(scancode);
@@ -34,34 +41,26 @@ static void key(GLFWwindow* window, int key, int scancode, int action, int mods)
     }
 }
 
-int main() {
-    
-    GLFWwindow* window;
-    NVGcontext* vg = NULL;
-    double prevt = 0;
-
+// ----------------------------------------------------------------------------
+int initialize()
+{
     if (!glfwInit()) {
         printf("Failed to init GLFW.");
         return -1;
     }
 
     // Serial connection init -----
-    
-    const std::string SERIAL_PORT = "/dev/tty.usbmodem1464301";
-    
-    // Serial object
-    serialib serial;
-    
+
     // Connection to serial port
     char errorOpening = serial.openDevice(SERIAL_PORT.c_str(), 9600);
     
     // If connection fails, return the error code otherwise, display a success message
-    if (errorOpening != 1) {
+    if(errorOpening != 1) {
         printf("Unable to open device %s\n", SERIAL_PORT.c_str());
         return errorOpening;
     }
     
-    printf ("Successful connection to %s\n",SERIAL_PORT.c_str());
+    printf ("Successful connection to %s\n", SERIAL_PORT.c_str());
         
     // -----
 
@@ -72,7 +71,7 @@ int main() {
 
     window = glfwCreateWindow(1000, 600, "Propagator", NULL, NULL);
     
-    if (!window) {
+    if(!window) {
         glfwTerminate();
         return -1;
     }
@@ -94,6 +93,18 @@ int main() {
         return -1;
     }
 
+    return 0;
+}
+
+// ----------------------------------------------------------------------------
+int main() {
+    
+    int result = initialize();
+        
+    if(result != 0) {
+        return result;
+    }
+    
     glfwSwapInterval(0);
 
     int winWidth, winHeight;
@@ -103,7 +114,7 @@ int main() {
     uint32_t current_pos = 0;
     char read[256];
     
-    while (!glfwWindowShouldClose(window))
+    while(!glfwWindowShouldClose(window))
     {
         double mx, my, t, dt;
         int fbWidth, fbHeight;
@@ -126,7 +137,7 @@ int main() {
         }
 
         voltages[current_pos] = val;
-        current_pos = (current_pos + 1) % voltages.size();
+        
         //printf("%f\n", val);
     
         // Update and render -----
@@ -138,10 +149,11 @@ int main() {
         nvgBeginFrame(vg, winWidth, winHeight, pxRatio);
 
         nvgBeginPath(vg);
-        nvgMoveTo(vg, 0, winHeight*(1.f - voltages[0]*2));
+        nvgMoveTo(vg, winWidth, winHeight*(1.f - voltages[current_pos]*2));
         
         for(uint32_t i=0; i < voltages.size(); ++i) {
-            nvgLineTo(vg, i, winHeight*(1.f - voltages[i]*2)); // considering max is 0.5V for now
+            uint32_t data_index = (voltages.size() + current_pos - i) % voltages.size();
+            nvgLineTo(vg, winWidth - i, winHeight*(1.f - voltages[data_index]*2)); // considering max is 0.5V for now
         }
 
         nvgStrokeColor(vg, nvgRGB(0, 167, 251));
@@ -152,6 +164,8 @@ int main() {
         
         // -----
         
+        current_pos = (current_pos + 1) % voltages.size();
+
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
@@ -159,5 +173,6 @@ int main() {
     nvgDeleteGL2(vg);
 
     glfwTerminate();
+    
     return 0;
 }
