@@ -103,7 +103,8 @@ int initialize()
 // ----------------------------------------------------------------------------
 float voltageToScreenY(float voltage)
 {
-    return winHeight*(1.f - voltage + min_voltage);
+    float zoom = 2.f;
+    return winHeight*(1.f + zoom*(-voltage + min_voltage));
 }
 
 // ----------------------------------------------------------------------------
