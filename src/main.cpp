@@ -20,7 +20,9 @@
 #include "nanovg_gl.h"
 
 const std::string SERIAL_PORT = "/dev/tty.usbmodem1464301";
+
 GLFWwindow* window;
+int winWidth, winHeight;
 NVGcontext* vg = NULL;
 serialib serial;
 
@@ -97,6 +99,12 @@ int initialize()
 }
 
 // ----------------------------------------------------------------------------
+float voltageToScreenY(float voltage)
+{
+    return winHeight*(1.f - voltage*2.f); // considering max is 0.5V for now
+}
+
+// ----------------------------------------------------------------------------
 int main() {
     
     int result = initialize();
@@ -106,8 +114,6 @@ int main() {
     }
     
     glfwSwapInterval(0);
-
-    int winWidth, winHeight;
     glfwGetWindowSize(window, &winWidth, &winHeight);
     
     std::vector<float> voltages(winWidth, 0);
@@ -149,11 +155,13 @@ int main() {
         nvgBeginFrame(vg, winWidth, winHeight, pxRatio);
 
         nvgBeginPath(vg);
-        nvgMoveTo(vg, winWidth, winHeight*(1.f - voltages[current_pos]*0.5f));
+        float start_y = voltageToScreenY(voltages[current_pos]);
+        nvgMoveTo(vg, winWidth, start_y);
         
         for(uint32_t i=0; i < voltages.size(); ++i) {
             uint32_t data_index = (voltages.size() + current_pos - i) % voltages.size();
-            nvgLineTo(vg, winWidth - i, winHeight*(1.f - voltages[data_index]*0.5f)); // considering max is 2V for now
+            float draw_y = voltageToScreenY(voltages[data_index]);
+            nvgLineTo(vg, winWidth - i, draw_y);
         }
 
         nvgStrokeColor(vg, nvgRGB(0, 167, 251));
