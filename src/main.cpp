@@ -24,7 +24,9 @@ const std::string SERIAL_PORT = "/dev/tty.usbmodem1464301";
 GLFWwindow* window;
 int winWidth, winHeight;
 NVGcontext* vg = NULL;
+
 serialib serial;
+float min_voltage;
 
 // ----------------------------------------------------------------------------
 void errorcb(int error, const char* desc)
@@ -71,7 +73,7 @@ int initialize()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 
-    window = glfwCreateWindow(1000, 600, "Propagator", NULL, NULL);
+    window = glfwCreateWindow(800, 600, "Propagator", NULL, NULL);
     
     if(!window) {
         glfwTerminate();
@@ -101,7 +103,7 @@ int initialize()
 // ----------------------------------------------------------------------------
 float voltageToScreenY(float voltage)
 {
-    return winHeight*(1.f - voltage*2.f); // considering max is 0.5V for now
+    return winHeight*(1.f - voltage + min_voltage);
 }
 
 // ----------------------------------------------------------------------------
@@ -121,7 +123,7 @@ int main() {
     uint32_t current_pos = 0;
     char read[256];
     
-    float min_voltage = 5.f;
+    min_voltage = 5.f;
     
     while(!glfwWindowShouldClose(window))
     {
@@ -146,7 +148,11 @@ int main() {
         }
 
         voltages[current_pos] = val;
-        min_voltage = std::min(min_voltage, val);
+        
+        if(val < min_voltage) {
+            min_voltage = val;
+            printf("min: %f V\n", min_voltage);
+        }
         
         //printf("%f\n", val);
     
@@ -173,11 +179,11 @@ int main() {
 
         // Draw min line -----
         
-        nvgStrokeColor(vg, nvgRGB(255, 69, 69));
-        nvgBeginPath(vg);
-        nvgMoveTo(vg, 0, voltageToScreenY(min_voltage));
-        nvgLineTo(vg, winWidth, voltageToScreenY(min_voltage));
-        nvgStroke(vg);
+//        nvgStrokeColor(vg, nvgRGB(255, 69, 69));
+//        nvgBeginPath(vg);
+//        nvgMoveTo(vg, 0, voltageToScreenY(min_voltage));
+//        nvgLineTo(vg, winWidth, voltageToScreenY(min_voltage));
+//        nvgStroke(vg);
         
         // -----
         
