@@ -149,11 +149,11 @@ int main() {
         nvgBeginFrame(vg, winWidth, winHeight, pxRatio);
 
         nvgBeginPath(vg);
-        nvgMoveTo(vg, winWidth, winHeight*(1.f - voltages[current_pos]*2));
+        nvgMoveTo(vg, winWidth, winHeight*(1.f - voltages[current_pos]*0.5f));
         
         for(uint32_t i=0; i < voltages.size(); ++i) {
             uint32_t data_index = (voltages.size() + current_pos - i) % voltages.size();
-            nvgLineTo(vg, winWidth - i, winHeight*(1.f - voltages[data_index]*2)); // considering max is 0.5V for now
+            nvgLineTo(vg, winWidth - i, winHeight*(1.f - voltages[data_index]*0.5f)); // considering max is 2V for now
         }
 
         nvgStrokeColor(vg, nvgRGB(0, 167, 251));
