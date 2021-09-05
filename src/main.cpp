@@ -27,6 +27,7 @@ NVGcontext* vg = NULL;
 
 serialib serial;
 float min_voltage;
+float max_voltage;
 
 // ----------------------------------------------------------------------------
 void errorcb(int error, const char* desc)
@@ -125,6 +126,12 @@ int main() {
     char read[256];
     
     min_voltage = 5.f;
+    max_voltage = 0.f;
+    
+    // Flush garbage values at start
+    for(uint32_t i=0; i < 50; ++i) {
+        serial.readString(read, '\n', 256);
+    }
     
     while(!glfwWindowShouldClose(window))
     {
@@ -155,6 +162,11 @@ int main() {
             printf("min: %f V\n", min_voltage);
         }
         
+        if(val > max_voltage) {
+            max_voltage = val;
+            printf("max: %f V\n", max_voltage);
+        }
+        
         //printf("%f\n", val);
     
         glViewport(0, 0, fbWidth, fbHeight);
@@ -178,13 +190,13 @@ int main() {
         nvgStrokeWidth(vg, 2);
         nvgStroke(vg);
 
-        // Draw min line -----
+        // Draw max line -----
         
-//        nvgStrokeColor(vg, nvgRGB(255, 69, 69));
-//        nvgBeginPath(vg);
-//        nvgMoveTo(vg, 0, voltageToScreenY(min_voltage));
-//        nvgLineTo(vg, winWidth, voltageToScreenY(min_voltage));
-//        nvgStroke(vg);
+        nvgStrokeColor(vg, nvgRGB(255, 69, 69));
+        nvgBeginPath(vg);
+        nvgMoveTo(vg, 0, voltageToScreenY(max_voltage));
+        nvgLineTo(vg, winWidth, voltageToScreenY(max_voltage));
+        nvgStroke(vg);
         
         // -----
         
